@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// datasource db {
+//   provider = "sqlite"
+//   url      = env("DATABASE_URL")
+// }
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model TeeTime {
+  id            String   @id @default(uuid())
+  time          String
+  price         Float
+  min_players   Int
+  max_players   Int
+  holes         Int
+  golfCourseName String
+  courseUrl     String
+  date          String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([date])
+  @@index([golfCourseName])
+} 
