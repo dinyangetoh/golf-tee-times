@@ -9,10 +9,10 @@
 	let error = '';
 
 	async function handleSubmit(event: SubmitEvent) {
-		event.preventDefault();
 		isLoading = true;
 		error = '';
 
+		console.log("saving details")
 		try {
 			if (teeTime) {
 				await updateTeeTime(teeTime.id, teeTime);
@@ -41,7 +41,7 @@
 		</div>
 	{:else}
 		<div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-			<form on:submit={handleSubmit} class="space-y-4">
+			<form on:submit|preventDefault={handleSubmit} class="space-y-4">
 				<div class="grid grid-cols-2 gap-4">
 					<div>
 						<label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>

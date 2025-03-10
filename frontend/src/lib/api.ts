@@ -1,4 +1,4 @@
-import type { TeeTime } from '$lib/types';
+import type {TeeTime} from '$lib/types';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
@@ -75,10 +75,13 @@ export async function createTeeTime(teeTime: Omit<TeeTime, 'id'>): Promise<TeeTi
 
 export async function updateTeeTime(id: string, teeTime: Partial<TeeTime>): Promise<TeeTime> {
 	try {
+		console.log("Updating tee time with ID",id, teeTime)
 		const response = await fetch(
 			`${API_BASE_URL}/tee-times/${id}`,
 			getCommonOptions('PUT', teeTime)
 		);
+
+		console.log("Some response",response);
 		return handleResponse<TeeTime>(response);
 	} catch (error) {
 		console.error(`Failed to update tee time with ID ${id}:`, error);
