@@ -1,21 +1,22 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { getTeeTimesByDate } from '$lib/api';
-	import type { PageData } from './$types';
-	
-	let { data } = $props();
-	
-	let selectedDate = $state(new Date().toISOString().split('T')[0]);
+	import {getTeeTimesByDate} from '$lib/api';
+	import type {PageData} from './$types';
+	import {onMount} from 'svelte';
 
-	$effect(() => {
-	
-		if(selectedDate){
-			console.log('selectedDate', selectedDate);
-			// Use a regular function that calls the async function
-			// TODO: Filter by date
+	export let data: PageData;
+
+	let selectedDate = new Date().toISOString().split('T')[0];
+
+	// Initialize with URL params if available
+	onMount(() => {
+		const searchParams = new URLSearchParams(window.location.search);
+		const dateParam = searchParams.get('date');
+		if (dateParam) {
+			selectedDate = dateParam;
+			loadTeeTimes(selectedDate);
 		}
 	});
-	
+
 	function formatTime(time: string): string {
 		return time;
 	}
@@ -23,17 +24,21 @@
 	function formatDate(date: string): string {
 		return (new Date(date)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
 	}
-	
+
 	function formatPrice(price: number): string {
 		return `$${price.toFixed(2)}`;
 	}
-	
+
+	async function loadTeeTimes(date: string) {
+		data.teeTimes = await getTeeTimesByDate(date);
+	}
+
 	async function handleDateChange() {
 		const searchParams = new URLSearchParams(window.location.search);
 		searchParams.set('date', selectedDate);
 		const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
 		window.history.pushState({}, '', newUrl);
-		data.teeTimes = await getTeeTimesByDate(selectedDate);
+		await loadTeeTimes(selectedDate);
 	}
 </script>
 
@@ -43,32 +48,30 @@
 
 <div class="container mx-auto px-4 py-8">
 	<h1 class="text-3xl font-bold mb-6">Golf Tee Times</h1>
-	
+
 	<div class="mb-6 flex items-center">
-		<label for="date-select" class="mr-2">Filter by date:</label>
-		<input 
-			id="date-select"
-			type="date" 
-			bind:value={selectedDate} 
+		<label class="mr-2" for="date-select">Filter by date:</label>
+		<input
+			bind:value={selectedDate}
 			class="border rounded px-2 py-1 mr-2"
+			id="date-select"
+			type="date"
 		/>
-		<button 
-			onclick={handleDateChange}
+		<button
 			class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded"
+			on:click={handleDateChange}
 		>
 			Filter
 		</button>
-		
-		
-		
-		<a href="/create" class="ml-auto bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded">
+
+		<a class="ml-auto bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded" href="/create">
 			Create Tee Time
 		</a>
 	</div>
-	
+
 	{#if !data.teeTimes || data.teeTimes.length === 0}
 		<div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-			No tee times found. Try selecting a different date or scraping new tee times.
+			No tee times found. Try selecting a different date or creating new tee times.
 		</div>
 	{:else}
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -78,9 +81,8 @@
 						<div class="flex justify-between">
 							<div class="text-gray-700 mb-2">{formatDate(teeTime.date)}</div>
 							<div class="text-xl font-bold mb-1">{formatTime(teeTime.time)}</div>
-							
 						</div>
-						
+
 						<div class="flex justify-between mb-3">
 							<div class="flex items-center mr-4">
 								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -88,7 +90,7 @@
 								</svg>
 								<span>{teeTime.min_players} - {teeTime.max_players}</span>
 							</div>
-							
+
 							<div class="flex items-center">
 								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
 									<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
@@ -99,19 +101,18 @@
 
 						<div class="my-5">
 							<div class="text-gray-700 font-semibold text-center mb-2">{teeTime.golfCourseName}</div>
-							
+
 							<div class="text-lg text-center font-semibold text-green-700 mb-3">{formatPrice(teeTime.price)}</div>
 						</div>
-						
+
 						<div class="flex space-x-2">
-							
-							<a 
+							<a
 								href={`/delete/${teeTime.id}`}
 								class="flex-1 bg-red-500 hover:bg-red-600 text-white text-center py-2 rounded"
 							>
 								Delete
 							</a>
-							<a 
+							<a
 								href={`/edit/${teeTime.id}`}
 								class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 rounded"
 							>

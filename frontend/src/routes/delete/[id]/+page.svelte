@@ -2,9 +2,9 @@
 	import { goto } from '$app/navigation';
 	import { deleteTeeTime } from '$lib/api';
 	
-	let { data } = $props();
-
-	let teeTime = $state(data.teeTime);
+	export let data;
+	
+	let teeTime = data.teeTime;
 	
 	let isLoading = false;
 	let error = '';
@@ -77,7 +77,7 @@
 			<div class="flex justify-between">
 				<a href="/" class="text-blue-500 hover:text-blue-700">Cancel</a>
 				<button
-					onclick={handleDelete}
+					on:click={handleDelete}
 					class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
 					disabled={isLoading}
 				>
