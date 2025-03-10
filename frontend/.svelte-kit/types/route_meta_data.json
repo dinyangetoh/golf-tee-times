@@ -1,0 +1,12 @@
+{
+	"/": [
+		"src/routes/+page.server.ts"
+	],
+	"/create": [],
+	"/delete/[id]": [
+		"src/routes/delete/[id]/+page.server.ts"
+	],
+	"/edit/[id]": [
+		"src/routes/edit/[id]/+page.server.ts"
+	]
+}
